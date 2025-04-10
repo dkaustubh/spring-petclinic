@@ -1,0 +1,27 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      java: corretto17
+  pre_build:
+    commands:
+      - echo "Starting build at $(date)"
+      - mvn clean
+  build:
+    commands:
+      - echo "Building Spring PetClinic application"
+      - mvn package -DskipTests
+  post_build:
+    commands:
+      - echo "Build completed at $(date)"
+      - cp target/*.jar spring-petclinic.jar
+      - mkdir -p scripts
+      - cp cicd/scripts/* scripts/
+
+artifacts:
+  files:
+    - spring-petclinic.jar
+    - appspec.yml
+    - scripts/**/*
+  discard-paths: no
