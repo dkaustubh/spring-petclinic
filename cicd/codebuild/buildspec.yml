@@ -3,7 +3,14 @@ version: 0.2
 phases:
   install:
     runtime-versions:
-      java: corretto11
+      java: corretto11  # Start with Java 11
+    commands:
+      - echo "Installing Java 17..."
+      - amazon-linux-extras enable corretto8
+      - yum install -y java-17-amazon-corretto-devel
+      - update-alternatives --set java /usr/lib/jvm/java-17-amazon-corretto.x86_64/bin/java
+      - update-alternatives --set javac /usr/lib/jvm/java-17-amazon-corretto.x86_64/bin/javac
+      - java -version
   pre_build:
     commands:
       - echo "Starting build at $(date)"
@@ -17,7 +24,7 @@ phases:
       - echo "Build completed at $(date)"
       - cp target/*.jar spring-petclinic.jar
       - mkdir -p scripts
-      - cp cicd/scripts/* scripts/
+      - cp cicd/scripts/* scripts/ || echo "No scripts to copy"
 
 artifacts:
   files:
