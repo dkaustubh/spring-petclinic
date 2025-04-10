@@ -6,11 +6,12 @@ phases:
       java: corretto11  # Start with Java 11
     commands:
       - echo "Installing Java 17..."
-      - amazon-linux-extras enable corretto8
-      - yum install -y java-17-amazon-corretto-devel
-      - update-alternatives --set java /usr/lib/jvm/java-17-amazon-corretto.x86_64/bin/java
-      - update-alternatives --set javac /usr/lib/jvm/java-17-amazon-corretto.x86_64/bin/javac
+      - wget https://corretto.aws/downloads/latest/amazon-corretto-17-x64-linux-jdk.tar.gz
+      - tar -xzf amazon-corretto-17-x64-linux-jdk.tar.gz -C /opt
+      - export JAVA_HOME=/opt/amazon-corretto-17*
+      - export PATH=$JAVA_HOME/bin:$PATH
       - java -version
+      - javac -version
   pre_build:
     commands:
       - echo "Starting build at $(date)"
