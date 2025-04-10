@@ -1,24 +1,34 @@
 version: 0.2
 
+env:
+  variables:
+    JAVA_HOME: "/opt/jdk17"
+
 phases:
   install:
     runtime-versions:
       java: corretto11  # Start with Java 11
     commands:
       - echo "Installing Java 17..."
-      - wget https://corretto.aws/downloads/latest/amazon-corretto-17-x64-linux-jdk.tar.gz
-      - tar -xzf amazon-corretto-17-x64-linux-jdk.tar.gz -C /opt
-      - export JAVA_HOME=/opt/amazon-corretto-17*
+      - mkdir -p /opt/jdk17
+      - wget -q https://corretto.aws/downloads/latest/amazon-corretto-17-x64-linux-jdk.tar.gz
+      - tar -xzf amazon-corretto-17-x64-linux-jdk.tar.gz --strip-components=1 -C /opt/jdk17
+      - rm amazon-corretto-17-x64-linux-jdk.tar.gz
       - export PATH=$JAVA_HOME/bin:$PATH
+      - echo "Java version:"
       - java -version
       - javac -version
+      - echo "Maven version:"
+      - mvn -version
   pre_build:
     commands:
       - echo "Starting build at $(date)"
+      - export PATH=$JAVA_HOME/bin:$PATH
       - mvn clean
   build:
     commands:
       - echo "Building Spring PetClinic application"
+      - export PATH=$JAVA_HOME/bin:$PATH
       - mvn package -DskipTests
   post_build:
     commands:
