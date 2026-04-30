@@ -97,4 +97,12 @@ class VetControllerTests {
 			.andExpect(jsonPath("$.vetList[0].id").value(1));
 	}
 
+	@Test
+	void testGetVetCount() throws Exception {
+		mockMvc.perform(get("/api/vets/count").accept(MediaType.APPLICATION_JSON))
+			.andExpect(status().isOk())
+			.andExpect(content().contentType(MediaType.APPLICATION_JSON))
+			.andExpect(content().string("2"));
+	}
+
 }

@@ -75,4 +75,9 @@ class VetController {
 		return vets;
 	}
 
+	@GetMapping("/api/vets/count")
+	public @ResponseBody long getVetCount() {
+		return this.vetRepository.findAll().size();
+	}
+
 }
