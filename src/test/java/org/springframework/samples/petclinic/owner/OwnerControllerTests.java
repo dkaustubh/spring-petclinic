@@ -33,6 +33,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.hasItem;
@@ -228,6 +229,33 @@ class OwnerControllerTests {
 			.andExpect(model().attribute("owner",
 					hasProperty("pets", hasItem(hasProperty("visits", hasSize(greaterThan(0)))))))
 			.andExpect(view().name("owners/ownerDetails"));
+	}
+
+	@Test
+	void testShowOwnerLastVisitDisplayedWhenVisitsExist() throws Exception {
+		LocalDate visitDate = LocalDate.of(2023, 6, 15);
+		Owner owner = george();
+		Visit visit = new Visit();
+		visit.setDate(visitDate);
+		owner.getPet("Max").addVisit(visit);
+		given(this.owners.findById(TEST_OWNER_ID)).willReturn(Optional.of(owner));
+
+		mockMvc.perform(get("/owners/{ownerId}", TEST_OWNER_ID))
+			.andExpect(status().isOk())
+			.andExpect(content().string(containsString("Last visit")))
+			.andExpect(content().string(containsString("2023-06-15")));
+	}
+
+	@Test
+	void testShowOwnerLastVisitShowsNoneWhenNoVisits() throws Exception {
+		Owner owner = george();
+		owner.getPet("Max").getVisits().clear();
+		given(this.owners.findById(TEST_OWNER_ID)).willReturn(Optional.of(owner));
+
+		mockMvc.perform(get("/owners/{ownerId}", TEST_OWNER_ID))
+			.andExpect(status().isOk())
+			.andExpect(content().string(containsString("Last visit")))
+			.andExpect(content().string(containsString("None")));
 	}
 
 	@Test

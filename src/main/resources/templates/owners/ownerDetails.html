@@ -60,6 +60,8 @@
               th:text="${#temporals.format(pet.birthDate, 'yyyy-MM-dd')}"></dd>
             <dt>Type</dt>
             <dd th:text="${pet.type}"></dd>
+            <dt>Last visit</dt>
+            <dd th:text="${pet.lastVisit != null} ? ${#temporals.format(pet.lastVisit.date, 'yyyy-MM-dd')} : 'None'"></dd>
           </dl>
         </td>
         <td valign="top">

@@ -82,4 +82,8 @@ public class Pet extends NamedEntity {
 		getVisits().add(visit);
 	}
 
+	public Visit getLastVisit() {
+		return this.visits.stream().reduce((first, second) -> second).orElse(null);
+	}
+
 }
