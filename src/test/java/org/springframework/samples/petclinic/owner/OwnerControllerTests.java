@@ -231,6 +231,52 @@ class OwnerControllerTests {
 	}
 
 	@Test
+	void testShowOwnerWithLastVisit() throws Exception {
+		LocalDate visitDate = LocalDate.of(2023, 6, 15);
+		Owner owner = george();
+		Pet pet = owner.getPets().iterator().next();
+		Visit visit = new Visit();
+		visit.setDate(visitDate);
+		visit.setDescription("Annual checkup");
+		pet.addVisit(visit);
+		given(this.owners.findById(TEST_OWNER_ID)).willReturn(Optional.of(owner));
+
+		mockMvc.perform(get("/owners/{ownerId}", TEST_OWNER_ID))
+			.andExpect(status().isOk())
+			.andExpect(view().name("owners/ownerDetails"))
+			.andExpect(model().attribute("owner",
+					hasProperty("pets", hasItem(hasProperty("lastVisit", hasProperty("present", is(true)))))))
+			.andExpect(content().string(org.hamcrest.Matchers.containsString("2023-06-15")));
+	}
+
+	@Test
+	void testShowOwnerWithNoVisits() throws Exception {
+		Owner owner = new Owner();
+		owner.setId(TEST_OWNER_ID);
+		owner.setFirstName("George");
+		owner.setLastName("Franklin");
+		owner.setAddress("110 W. Liberty St.");
+		owner.setCity("Madison");
+		owner.setTelephone("6085551023");
+		Pet pet = new Pet();
+		PetType dog = new PetType();
+		dog.setName("dog");
+		pet.setType(dog);
+		pet.setName("Buddy");
+		pet.setBirthDate(LocalDate.of(2020, 1, 1));
+		owner.addPet(pet);
+		pet.setId(2);
+		given(this.owners.findById(TEST_OWNER_ID)).willReturn(Optional.of(owner));
+
+		mockMvc.perform(get("/owners/{ownerId}", TEST_OWNER_ID))
+			.andExpect(status().isOk())
+			.andExpect(view().name("owners/ownerDetails"))
+			.andExpect(model().attribute("owner",
+					hasProperty("pets", hasItem(hasProperty("lastVisit", hasProperty("present", is(false)))))))
+			.andExpect(content().string(org.hamcrest.Matchers.containsString("None")));
+	}
+
+	@Test
 	public void testProcessUpdateOwnerFormWithIdMismatch() throws Exception {
 		int pathOwnerId = 1;
 

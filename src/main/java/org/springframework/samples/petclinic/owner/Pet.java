@@ -18,6 +18,7 @@ package org.springframework.samples.petclinic.owner;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.LinkedHashSet;
+import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.format.annotation.DateTimeFormat;
@@ -80,6 +81,10 @@ public class Pet extends NamedEntity {
 
 	public void addVisit(Visit visit) {
 		getVisits().add(visit);
+	}
+
+	public Optional<Visit> getLastVisit() {
+		return this.visits.stream().reduce((first, second) -> second);
 	}
 
 }
