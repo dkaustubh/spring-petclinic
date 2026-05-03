@@ -231,6 +231,35 @@ class OwnerControllerTests {
 	}
 
 	@Test
+	void testShowOwnerLastVisitDisplayedWhenVisitsExist() throws Exception {
+		LocalDate visitDate = LocalDate.of(2023, 6, 15);
+		Owner owner = george();
+		Pet pet = owner.getPets().get(0);
+		Visit visit = new Visit();
+		visit.setDate(visitDate);
+		pet.addVisit(visit);
+		given(this.owners.findById(TEST_OWNER_ID)).willReturn(Optional.of(owner));
+
+		mockMvc.perform(get("/owners/{ownerId}", TEST_OWNER_ID))
+			.andExpect(status().isOk())
+			.andExpect(view().name("owners/ownerDetails"))
+			.andExpect(content().string(org.hamcrest.Matchers.containsString("2023-06-15")));
+	}
+
+	@Test
+	void testShowOwnerLastVisitPlaceholderWhenNoVisits() throws Exception {
+		Owner owner = george();
+		Pet pet = owner.getPets().get(0);
+		pet.getVisits().clear();
+		given(this.owners.findById(TEST_OWNER_ID)).willReturn(Optional.of(owner));
+
+		mockMvc.perform(get("/owners/{ownerId}", TEST_OWNER_ID))
+			.andExpect(status().isOk())
+			.andExpect(view().name("owners/ownerDetails"))
+			.andExpect(content().string(org.hamcrest.Matchers.containsString("None")));
+	}
+
+	@Test
 	public void testProcessUpdateOwnerFormWithIdMismatch() throws Exception {
 		int pathOwnerId = 1;
 
