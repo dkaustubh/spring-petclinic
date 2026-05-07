@@ -40,6 +40,7 @@ import static org.hamcrest.Matchers.hasProperty;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -227,6 +228,36 @@ class OwnerControllerTests {
 			.andExpect(model().attribute("owner", hasProperty("pets", not(empty()))))
 			.andExpect(model().attribute("owner",
 					hasProperty("pets", hasItem(hasProperty("visits", hasSize(greaterThan(0)))))))
+			.andExpect(model().attribute("owner",
+					hasProperty("pets", hasItem(hasProperty("lastVisit", is(LocalDate.now()))))))
+			.andExpect(view().name("owners/ownerDetails"));
+	}
+
+	@Test
+	void testShowOwnerPetWithNoVisits() throws Exception {
+		Owner ownerNoVisits = new Owner();
+		ownerNoVisits.setId(2);
+		ownerNoVisits.setFirstName("Betty");
+		ownerNoVisits.setLastName("Davis");
+		ownerNoVisits.setAddress("638 Cardinal Ave.");
+		ownerNoVisits.setCity("Sun Prairie");
+		ownerNoVisits.setTelephone("6085551749");
+		Pet cat = new Pet();
+		PetType catType = new PetType();
+		catType.setName("cat");
+		cat.setType(catType);
+		cat.setName("Basil");
+		cat.setBirthDate(LocalDate.now());
+		ownerNoVisits.addPet(cat);
+		cat.setId(2);
+		given(this.owners.findById(2)).willReturn(Optional.of(ownerNoVisits));
+
+		mockMvc.perform(get("/owners/{ownerId}", 2))
+			.andExpect(status().isOk())
+			.andExpect(model().attribute("owner", hasProperty("pets", not(empty()))))
+			.andExpect(model().attribute("owner", hasProperty("pets", hasItem(hasProperty("visits", hasSize(0))))))
+			.andExpect(
+					model().attribute("owner", hasProperty("pets", hasItem(hasProperty("lastVisit", is(nullValue()))))))
 			.andExpect(view().name("owners/ownerDetails"));
 	}
 
