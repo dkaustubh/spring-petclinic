@@ -17,6 +17,7 @@ package org.springframework.samples.petclinic.owner;
 
 import java.time.LocalDate;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -80,6 +81,10 @@ public class Pet extends NamedEntity {
 
 	public void addVisit(Visit visit) {
 		getVisits().add(visit);
+	}
+
+	public LocalDate getLastVisit() {
+		return this.visits.stream().map(Visit::getDate).max(Comparator.naturalOrder()).orElse(null);
 	}
 
 }
