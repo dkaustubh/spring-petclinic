@@ -33,6 +33,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.hasItem;
@@ -248,6 +249,48 @@ class OwnerControllerTests {
 			.andExpect(status().is3xxRedirection())
 			.andExpect(redirectedUrl("/owners/" + pathOwnerId + "/edit"))
 			.andExpect(flash().attributeExists("error"));
+	}
+
+	@Test
+	void testShowOwnerLastVisitDisplayedWhenPetHasVisits() throws Exception {
+		LocalDate visitDate = LocalDate.of(2023, 6, 15);
+		Owner owner = george();
+		Visit visit = new Visit();
+		visit.setDate(visitDate);
+		owner.getPet("Max").addVisit(visit);
+		given(this.owners.findById(TEST_OWNER_ID)).willReturn(Optional.of(owner));
+
+		mockMvc.perform(get("/owners/{ownerId}", TEST_OWNER_ID))
+			.andExpect(status().isOk())
+			.andExpect(view().name("owners/ownerDetails"))
+			.andExpect(content().string(containsString("Last Visit")))
+			.andExpect(content().string(containsString("2023-06-15")));
+	}
+
+	@Test
+	void testShowOwnerLastVisitShowsNoneWhenPetHasNoVisits() throws Exception {
+		Owner owner = new Owner();
+		owner.setId(TEST_OWNER_ID);
+		owner.setFirstName("George");
+		owner.setLastName("Franklin");
+		owner.setAddress("110 W. Liberty St.");
+		owner.setCity("Madison");
+		owner.setTelephone("6085551023");
+		Pet petWithNoVisits = new Pet();
+		PetType dog = new PetType();
+		dog.setName("dog");
+		petWithNoVisits.setType(dog);
+		petWithNoVisits.setName("Buddy");
+		petWithNoVisits.setBirthDate(LocalDate.of(2020, 1, 1));
+		owner.addPet(petWithNoVisits);
+		petWithNoVisits.setId(2);
+		given(this.owners.findById(TEST_OWNER_ID)).willReturn(Optional.of(owner));
+
+		mockMvc.perform(get("/owners/{ownerId}", TEST_OWNER_ID))
+			.andExpect(status().isOk())
+			.andExpect(view().name("owners/ownerDetails"))
+			.andExpect(content().string(containsString("Last Visit")))
+			.andExpect(content().string(containsString("none")));
 	}
 
 }
